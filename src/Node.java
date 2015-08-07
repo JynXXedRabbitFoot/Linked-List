@@ -1,38 +1,45 @@
 /**
- *
- */
-
-/**
- * Node for a linked list.
+ * Generic Node for a linked list.
  *
  * @author Dank
  *
  */
-public class Node {
-	private Node pred = null;
-	private Node succ = null;
-	private Object data = null;
+public class Node<T> {
 
-	public Node(Node pred, Node succ, Object data) {
+	private Node<T> pred = null;
+	private Node<T> succ = null;
+	private T data = null;
+
+	/**
+	 * Instantiates a new Node.
+	 *
+	 * @param pred
+	 *            - The Node preceding this one.
+	 * @param succ
+	 *            - The Node succeeding this one.
+	 * @param data
+	 *            - this Nodes data.
+	 */
+	public Node(Node<T> pred, Node<T> succ, T data) {
 		super();
 		this.pred = pred;
 		this.succ = succ;
 		this.data = data;
 	}
 
-	public Node getPred() {
+	public Node<T> getPred() {
 		return this.pred;
 	}
 
-	public void setPred(Node pred) {
+	public void setPred(Node<T> pred) {
 		this.pred = pred;
 	}
 
-	public Node getSucc() {
+	public Node<T> getSucc() {
 		return this.succ;
 	}
 
-	public void setSucc(Node succ) {
+	public void setSucc(Node<T> succ) {
 		this.succ = succ;
 	}
 
@@ -40,7 +47,7 @@ public class Node {
 		return this.data;
 	}
 
-	public void setData(Object data) {
+	public void setData(T data) {
 		this.data = data;
 	}
 }
