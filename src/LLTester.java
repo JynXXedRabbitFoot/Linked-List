@@ -2,6 +2,7 @@
 public class LLTester {
 
 	public static void main(String[] args) {
+
 		LinkedList<Integer> list = new LinkedList<Integer>(5);
 		System.out.println(list.getCurrent());
 		list.advanceCurrent();
@@ -16,5 +17,4 @@ public class LLTester {
 		System.out.println(list.getCurrent());
 		System.out.println(list.toString());
 	}
-
 }

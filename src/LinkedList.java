@@ -1,10 +1,15 @@
 
+/*
+ *
+ */
+import java.util.ListIterator;
+
 /**
  * LinkedList implementation. A new list can be created with an object, or null.
  * Every time a node is added it becomes the current node.
  *
  */
-public class LinkedList<T> implements Cloneable {
+public class LinkedList<T> implements Cloneable, ListIterator<T> {
 	private Node<T> head = null;
 	private Node<T> tail;
 	private Node<T> current;
@@ -18,12 +23,30 @@ public class LinkedList<T> implements Cloneable {
 	 */
 	public LinkedList(T o) {
 		super();
+		// List will always have a head node even if data is null in which case
+		// size is zero
+		this.head = new Node<T>(null, null, o);
+		this.tail = this.head;
 		if (o == null) {
 			this.size = 0;
+			// if head data is null hasNext will return false because current
+			// will not have next.
+			this.current = new Node<T>(null, null, null);
+		} else {
+			this.current = new Node<T>(null, this.head, null);
 		}
-		this.head = new Node<T>(null, null, o);
-		this.current = this.head;
-		this.tail = this.head;
+	}
+
+	/**
+	 * start iterator over
+	 *
+	 */
+	public void resetCurrent() {
+		if (this.size < 1) {
+			this.current = new Node<T>(null, null, null);
+		} else {
+			this.current = new Node<T>(null, this.head, null);
+		}
 	}
 
 	/**
@@ -33,15 +56,8 @@ public class LinkedList<T> implements Cloneable {
 	 *            the o
 	 */
 	public void insertAtBeginning(T o) {
-		if (this.size > 0) {
-			Node<T> newNode = new Node<T>(null, this.head, o);
-			this.head.setPred(newNode);
-			this.head = newNode;
-			this.current = this.head;
-		} else {
-			this.head.setData(o);
-		}
-		this.size++;
+		this.resetCurrent();
+		this.add(o);
 	}
 
 	/**
@@ -53,53 +69,90 @@ public class LinkedList<T> implements Cloneable {
 	public void insertAtEnd(T o) {
 		if (this.size > 0) {
 			this.current = this.tail;
-			this.insertAfterCurrent(o);
-		} else {
-			this.head.setData(o);
-			this.size++;
 		}
+		this.add(o);
 	}
 
-	/**
-	 * Insert after current.
-	 *
-	 * @param o
-	 *            the o
-	 */
-	public void insertAfterCurrent(T o) {
-		if (this.size < 1) {
-			this.insertAtBeginning(o);
-		} else {
-			Node<T> newNode = new Node<T>(this.current, this.current.getSucc(), o);
-			this.current.setSucc(newNode);
-			if (this.current == this.tail) {
+	@Override
+	public void add(T o) {
+		if (this.size < 1) {// empty list
+			this.head.setData(o);
+			this.current = this.head;
+		} else {// there is at least one node in list
+			Node<T> newNode = new Node<T>(null, null, o);
+			if (this.current.getSucc() != null) {// if current has successor
+													// insert between current
+													// and successor
+				newNode.setSucc(this.current.getSucc());
+				this.current.getSucc().setPred(newNode);
+			} else {
 				this.tail = newNode;
 			}
+			if (this.current.getData() != null) {// add after current
+				this.current.setSucc(newNode);
+				newNode.setPred(this.current);
+			} else {// Inserting at beginning
+				this.head = newNode;
+			}
 			this.current = newNode;
-			this.size++;
 		}
+		this.size++;
 	}
 
 	/**
-	 * Removes the current node if it exists. Advances the current node to the
-	 * next Node.
+	 * Removes the current node if it exists. Backs up the current node to the
+	 * previous Node to maintain next Node consistency.
 	 */
-	public void removeCurrent() {
+	@Override
+	public void remove() {
 		if (this.size > 0) {
 			if (this.size == 1) {
 				this.head.setData(null);
+				this.tail = this.head;
+				this.resetCurrent();
+				// At beginning of 2 or more nodes.
 			} else if (this.current == this.head) {
 				this.head = this.head.getSucc();
-				this.advanceCurrent();
+				this.resetCurrent();
+				// At end of 2 or more nodes.
 			} else if (this.current == this.tail) {
-				this.advanceCurrent();
+				this.resetCurrent();
 				this.tail = this.tail.getPred();
 				this.tail.setSucc(null);
+				// In between Nodes.
 			} else {
 				this.current.getPred().setSucc(this.current.getSucc());
-				this.advanceCurrent();
+				this.current.getSucc().setPred(this.current.getPred());
+				this.current = this.current.getPred();
 			}
 			this.size--;
+		}
+	}
+
+	/**
+	 * Advances and returns the next Node in the list. If current item was tail
+	 * it returns null.
+	 */
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public T next() {
+		if (this.current.getSucc() == null) {
+			return null;
+		} else {
+			this.current = this.current.getSucc();
+			return (T) this.current.getData();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public T previous() {
+		if (this.current.getPred() == null) {
+			return null;
+		} else {
+			this.current = this.current.getPred();
+			return (T) this.current.getData();
 		}
 	}
 
@@ -108,7 +161,7 @@ public class LinkedList<T> implements Cloneable {
 	 */
 	public void removeHead() {
 		this.current = this.head;
-		this.removeCurrent();
+		this.remove();
 	}
 
 	/**
@@ -116,7 +169,7 @@ public class LinkedList<T> implements Cloneable {
 	 */
 	public void removeTail() {
 		this.current = this.tail;
-		this.removeCurrent();
+		this.remove();
 	}
 
 	/**
@@ -125,16 +178,16 @@ public class LinkedList<T> implements Cloneable {
 	 * @param o
 	 */
 	public void removeNode(T o) {
-		this.current = this.head;
+		this.resetCurrent();
 		while (true) {
 			if (this.current.getData().equals(o)) {
-				this.removeCurrent();
+				this.remove();
 				break;
 			}
 			if ((this.current.getSucc() == null)) {
 				break;
 			} else {
-				this.advanceCurrent();
+				this.next();
 			}
 		}
 	}
@@ -145,15 +198,15 @@ public class LinkedList<T> implements Cloneable {
 	 * @param o
 	 */
 	public void removeNodes(T o) {
-		this.current = this.head;
+		this.resetCurrent();
 		while (true) {
 			if (this.current.getData().equals(o)) {
-				this.removeCurrent();
+				this.remove();
 			}
 			if ((this.current.getSucc() == null)) {
 				break;
 			} else {
-				this.advanceCurrent();
+				this.next();
 			}
 		}
 	}
@@ -167,7 +220,7 @@ public class LinkedList<T> implements Cloneable {
 		if (this.size < 1) {
 			return false;
 		}
-		this.current = this.head;
+		this.resetCurrent();
 		while (true) {
 			if (this.current.getData().equals(o)) {
 				return true;
@@ -175,7 +228,7 @@ public class LinkedList<T> implements Cloneable {
 			if ((this.current.getSucc() == null)) {
 				return false;
 			} else {
-				this.advanceCurrent();
+				this.next();
 			}
 		}
 	}
@@ -188,49 +241,21 @@ public class LinkedList<T> implements Cloneable {
 		this.head.setSucc(null);
 		this.size = 0;
 		this.tail = this.head;
-		this.current = this.head;
-	}
-
-	/**
-	 * Advances current item to next in the list, if current item was tail it
-	 * advances to the first item in the list.
-	 */
-	public void advanceCurrent() {
-		if (this.current.getSucc() == null) {
-			this.current = this.head;
-		} else {
-			this.current = this.current.getSucc();
-		}
-	}
-
-	/**
-	 * Retrieve the data from the current node.
-	 *
-	 * @return - The data from the current node, or null if this is an empty
-	 *         list.
-	 */
-	@SuppressWarnings("unchecked")
-	public T getCurrent() {
-		return (T) this.current.getData();
+		this.resetCurrent();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected Object clone() throws CloneNotSupportedException {
+	protected LinkedList<T> clone() throws CloneNotSupportedException {
 		if (this.size < 1) {
 			return new LinkedList<T>(null);
 		}
 		LinkedList<T> clone = (LinkedList<T>) super.clone();
-		this.current = this.head;
-
-		while (true) {
-			clone.insertAtEnd((T) this.current.getData());
-			if ((this.current.getSucc() == null)) {
-				return clone;
-			} else {
-				this.advanceCurrent();
-			}
+		this.resetCurrent();
+		while (this.hasNext()) {
+			clone.add(this.next());
 		}
+		return clone;
 	}
 
 	public int getSize() {
@@ -238,13 +263,18 @@ public class LinkedList<T> implements Cloneable {
 	}
 
 	@Override
-	// TODO
 	public String toString() {
-		return "LinkedList []";
+		StringBuilder sb = new StringBuilder();
+		sb.append("LinkedList [");
+		this.resetCurrent();
+		while (this.hasNext()) {
+			sb.append(this.next().toString());
+		}
+		sb.append(" ]");
+		return sb.toString();
 	}
 
 	@Override
-	// TODO
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -256,7 +286,6 @@ public class LinkedList<T> implements Cloneable {
 	}
 
 	@Override
-	// TODO
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
@@ -267,7 +296,8 @@ public class LinkedList<T> implements Cloneable {
 		if (this.getClass() != obj.getClass()) {
 			return false;
 		}
-		LinkedList other = (LinkedList) obj;
+		@SuppressWarnings("unchecked")
+		LinkedList<T> other = (LinkedList<T>) obj;
 		if (this.current == null) {
 			if (other.current != null) {
 				return false;
@@ -295,8 +325,40 @@ public class LinkedList<T> implements Cloneable {
 		return true;
 	}
 
-	// TODO
+	@Override
+	public boolean hasNext() {
+		return (this.current.getSucc() != null);
+	}
+
+	@Override
+	public boolean hasPrevious() {
+		return (this.current.getPred() != null);
+	}
+
+	@Override
 	/**
-	 * Iterator
+	 * Unused
+	 *
+	 * @return - Always returns 0.
 	 */
+	public int nextIndex() {
+		return 0;
+	}
+
+	@Override
+	/**
+	 * Unused
+	 *
+	 * @return - Always returns 0.
+	 */
+	public int previousIndex() {
+		return 0;
+	}
+
+	@Override
+	/**
+	 * Unused
+	 */
+	public void set(Object arg0) {
+	}
 }
