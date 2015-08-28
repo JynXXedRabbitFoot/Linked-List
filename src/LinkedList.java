@@ -1,13 +1,16 @@
-
 /*
- *
+ * 
  */
 import java.util.ListIterator;
 
 /**
  * LinkedList implementation. A new list can be created with an object, or null.
  * Every time a node is added it becomes the current node.
+ * 
+ * @author Dan Kruse
  *
+ * @param <T>
+ *            - the dataType to use in this generic LinkedList.
  */
 public class LinkedList<T> implements Cloneable, ListIterator<T> {
 	private Node<T> head = null;
@@ -18,16 +21,16 @@ public class LinkedList<T> implements Cloneable, ListIterator<T> {
 	/**
 	 * Instantiates a new linked list.
 	 *
-	 * @param o
-	 *            the o
+	 * @param data
+	 *            - This data will be the first node in the list
 	 */
-	public LinkedList(T o) {
+	public LinkedList(T data) {
 		super();
 		// List will always have a head node even if data is null in which case
 		// size is zero
-		this.head = new Node<T>(null, null, o);
+		this.head = new Node<T>(null, null, data);
 		this.tail = this.head;
-		if (o == null) {
+		if (data == null) {
 			this.size = 0;
 			// if head data is null hasNext will return false because current
 			// will not have next.
@@ -39,7 +42,7 @@ public class LinkedList<T> implements Cloneable, ListIterator<T> {
 	}
 
 	/**
-	 * start iterator over
+	 * Resets the iterators cursor to the beginning of the list.
 	 *
 	 */
 	public void resetCurrent() {
@@ -51,27 +54,27 @@ public class LinkedList<T> implements Cloneable, ListIterator<T> {
 	}
 
 	/**
-	 * Insert at beginning.
+	 * Insert a node at the beginning of the list.
 	 *
-	 * @param o
-	 *            the o
+	 * @param data
+	 *            - the data to be added to the beginning of the list.
 	 */
-	public void insertAtBeginning(T o) {
+	public void insertAtBeginning(T data) {
 		this.resetCurrent();
-		this.add(o);
+		this.add(data);
 	}
 
 	/**
-	 * Insert at end.
+	 * Inserts a node at the end of the list.
 	 *
-	 * @param o
-	 *            the o
+	 * @param data
+	 *            - the data to be added to the end of the list.
 	 */
-	public void insertAtEnd(T o) {
+	public void insertAtEnd(T data) {
 		if (this.size > 0) {
 			this.current = this.tail;
 		}
-		this.add(o);
+		this.add(data);
 	}
 
 	@Override
@@ -80,17 +83,7 @@ public class LinkedList<T> implements Cloneable, ListIterator<T> {
 			this.head.setData(o);
 			this.current = this.head;
 			this.tail = this.head;
-		} else {/*
-				 * // there is at least one node in list Node<T> newNode = new
-				 * Node<T>(null, null, o); if (this.current.getSucc() != null)
-				 * {// if current has successor // insert between current // and
-				 * successor newNode.setSucc(this.current.getSucc());
-				 * this.current.getSucc().setPred(newNode); } else { this.tail =
-				 * newNode; } if (this.current.getData() != null) {// add after
-				 * current this.current.setSucc(newNode);
-				 * newNode.setPred(this.current); } else {// Inserting at
-				 * beginning this.head = newNode; } this.current = newNode;
-				 */
+		} else {
 			Node<T> newNode = new Node<T>(null, null, o);
 			// list with at least 1 element
 			if (this.current.getData() == null) {
@@ -129,33 +122,33 @@ public class LinkedList<T> implements Cloneable, ListIterator<T> {
 	@Override
 	public void remove() {
 		if (this.size > 0) {
-			if (this.size == 1) {
-				this.head.setData(null);
-				this.tail = this.head;
-				this.resetCurrent();
-				// At beginning of 2 or more nodes.
-			} else if (this.current == this.head) {
-				this.head = this.head.getSucc();
-				this.resetCurrent();
-				// At end of 2 or more nodes.
-			} else if (this.current == this.tail) {
-				this.resetCurrent();
-				this.tail = this.tail.getPred();
-				this.tail.setSucc(null);
-				// In between Nodes.
-			} else {
-				this.current.getPred().setSucc(this.current.getSucc());
-				this.current.getSucc().setPred(this.current.getPred());
-				this.current = this.current.getPred();
+			if (this.current.getData() != null) {
+				if (this.size == 1) {
+					this.head.setData(null);
+					this.tail = this.head;
+					this.size--;
+					this.resetCurrent();
+				} else {
+					if (this.current == this.head) {
+						this.head = this.head.getSucc();
+						this.head.setPred(null);
+						this.resetCurrent();
+						// At end of 2 or more nodes.
+					} else if (this.current == this.tail) {
+						this.resetCurrent();
+						this.tail = this.tail.getPred();
+						this.tail.setSucc(null);
+						// In between Nodes.
+					} else {
+						this.current.getPred().setSucc(this.current.getSucc());
+						this.current.getSucc().setPred(this.current.getPred());
+						this.current = this.current.getPred();
+					}
+					this.size--;
+				}
 			}
-			this.size--;
 		}
 	}
-
-	/**
-	 * Advances to the next Node in the list and returns its data. If current
-	 * item was tail it returns null.
-	 */
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -198,19 +191,19 @@ public class LinkedList<T> implements Cloneable, ListIterator<T> {
 	/**
 	 * Removes a single Node with specific data.
 	 *
-	 * @param o
+	 * @param data-
+	 *            the first node found with this data will be removed from the
+	 *            list.
 	 */
-	public void removeNode(T o) {
+	public void removeNode(T data) {
 		this.resetCurrent();
 		while (true) {
-			if (this.current.getData().equals(o)) {
+			if (this.next().equals(data)) {
 				this.remove();
 				break;
 			}
 			if ((this.current.getSucc() == null)) {
 				break;
-			} else {
-				this.next();
 			}
 		}
 	}
@@ -218,46 +211,47 @@ public class LinkedList<T> implements Cloneable, ListIterator<T> {
 	/**
 	 * Removes all Nodes with specific data.
 	 *
-	 * @param o
+	 * @param data
+	 *            - nodes with this data will be removed from the list.
 	 */
-	public void removeNodes(T o) {
+	public void removeNodes(T data) {
 		this.resetCurrent();
 		while (true) {
-			if (this.current.getData().equals(o)) {
+			if (this.next().equals(data)) {
 				this.remove();
 			}
 			if ((this.current.getSucc() == null)) {
 				break;
-			} else {
-				this.next();
 			}
 		}
 	}
 
 	/**
-	 * Determines if the list contains a Node with specified data.
+	 * Determines if the list contains a Node with specified data. If so it
+	 * becomes the current element, otherwise the current element is reset to
+	 * the beginning of the list.
 	 *
-	 * @param o
+	 * @param data
+	 *            -The data to verify that the current List contains.
 	 */
-	public boolean contains(T o) {
+	public boolean contains(T data) {
 		if (this.size < 1) {
 			return false;
 		}
 		this.resetCurrent();
 		while (true) {
-			if (this.current.getData().equals(o)) {
+			if (this.next().equals(data)) {
 				return true;
 			}
 			if ((this.current.getSucc() == null)) {
+				this.resetCurrent();
 				return false;
-			} else {
-				this.next();
 			}
 		}
 	}
 
 	/**
-	 * Empties the list.
+	 * Empties the LinkedList.
 	 */
 	public void clear() {
 		this.head.setData(null);
@@ -308,6 +302,10 @@ public class LinkedList<T> implements Cloneable, ListIterator<T> {
 	}
 
 	@Override
+	/**
+	 * Returns true if both Lists contain the same quantity of nodes of the same
+	 * type containing the same data in the same sequence.
+	 */
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
@@ -320,29 +318,15 @@ public class LinkedList<T> implements Cloneable, ListIterator<T> {
 		}
 		@SuppressWarnings("unchecked")
 		LinkedList<T> other = (LinkedList<T>) obj;
-		if (this.current == null) {
-			if (other.current != null) {
-				return false;
-			}
-		} else if (!this.current.equals(other.current)) {
-			return false;
-		}
-		if (this.head == null) {
-			if (other.head != null) {
-				return false;
-			}
-		} else if (!this.head.equals(other.head)) {
-			return false;
-		}
 		if (this.size != other.size) {
 			return false;
 		}
-		if (this.tail == null) {
-			if (other.tail != null) {
+		this.resetCurrent();
+		other.resetCurrent();
+		while (this.hasNext()) {
+			if (this.next() != other.next()) {
 				return false;
 			}
-		} else if (!this.tail.equals(other.tail)) {
-			return false;
 		}
 		return true;
 	}
@@ -381,6 +365,6 @@ public class LinkedList<T> implements Cloneable, ListIterator<T> {
 	/**
 	 * Unused
 	 */
-	public void set(Object arg0) {
+	public void set(Object o) {
 	}
 }

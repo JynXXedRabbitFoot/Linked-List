@@ -1,13 +1,13 @@
 /**
- * Generic Node for a linked list.
+ * Generic Node for a LinkedList.
  *
  * @author Dank
  *
  */
 public class Node<T> {
 
-	private Node<T> pred = null;
-	private Node<T> succ = null;
+	private Node<T> predecessor = null;
+	private Node<T> succesor = null;
 	private T data = null;
 
 	/**
@@ -22,25 +22,25 @@ public class Node<T> {
 	 */
 	public Node(Node<T> pred, Node<T> succ, T data) {
 		super();
-		this.pred = pred;
-		this.succ = succ;
+		this.predecessor = pred;
+		this.succesor = succ;
 		this.data = data;
 	}
 
 	public Node<T> getPred() {
-		return this.pred;
+		return this.predecessor;
 	}
 
 	public void setPred(Node<T> pred) {
-		this.pred = pred;
+		this.predecessor = pred;
 	}
 
 	public Node<T> getSucc() {
-		return this.succ;
+		return this.succesor;
 	}
 
 	public void setSucc(Node<T> succ) {
-		this.succ = succ;
+		this.succesor = succ;
 	}
 
 	public Object getData() {
@@ -56,8 +56,8 @@ public class Node<T> {
 		final int prime = 31;
 		int result = 1;
 		result = (prime * result) + ((this.data == null) ? 0 : this.data.hashCode());
-		result = (prime * result) + ((this.pred == null) ? 0 : this.pred.hashCode());
-		result = (prime * result) + ((this.succ == null) ? 0 : this.succ.hashCode());
+		result = (prime * result) + ((this.predecessor == null) ? 0 : this.predecessor.hashCode());
+		result = (prime * result) + ((this.succesor == null) ? 0 : this.succesor.hashCode());
 		return result;
 	}
 
@@ -81,18 +81,18 @@ public class Node<T> {
 		} else if (!this.data.equals(other.data)) {
 			return false;
 		}
-		if (this.pred == null) {
-			if (other.pred != null) {
+		if (this.predecessor == null) {
+			if (other.predecessor != null) {
 				return false;
 			}
-		} else if (!this.pred.equals(other.pred)) {
+		} else if (!this.predecessor.equals(other.predecessor)) {
 			return false;
 		}
-		if (this.succ == null) {
-			if (other.succ != null) {
+		if (this.succesor == null) {
+			if (other.succesor != null) {
 				return false;
 			}
-		} else if (!this.succ.equals(other.succ)) {
+		} else if (!this.succesor.equals(other.succesor)) {
 			return false;
 		}
 		return true;
